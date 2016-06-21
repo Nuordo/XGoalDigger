@@ -40,7 +40,21 @@ export default class GoalsPage extends Component {
     }).done();
   }
   addGoalToPath() {
-    console.log(this.state.user);
+    fetch('http://paths-staging.unleash.x-team.com/api/v1/paths/' + this.state.user.id + '/goals', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(this.state.goal)
+    })
+    .then((response) => {
+      console.log(response);
+      this.pickRandomGoal();
+    })
+    .catch((error) => {
+      console.warn(error);
+    });
   }
   logIn() {
     GoogleSignin.signIn()
