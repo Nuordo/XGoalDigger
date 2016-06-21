@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { GoogleSignin } from 'react-native-google-signin';
 import { Actions } from 'react-native-router-flux';
 import Goal from '../Components/Goal';
 import Button from '../Components/Button';
@@ -10,6 +11,7 @@ export default class GoalsPage extends Component {
     this.state = {
       goals: [],
       goal: {},
+      user: null,
       goalNumber: ''
     };
   }
@@ -32,17 +34,28 @@ export default class GoalsPage extends Component {
     .catch((error) => {
       console.warn(error);
     });
+
+    GoogleSignin.configure({
+      iosClientId: '136212089108-dhu9pbj3tljeu0i9am7lk5qa69dglrcd.apps.googleusercontent.com'
+    }).done();
   }
   addGoalToPath() {
-    // Alert.alert('Log in', 'Please log in with an X-Team account to modify your path');
+    console.log(this.state.user);
   }
   logIn() {
-    Actions.loginPage();
+    GoogleSignin.signIn()
+    .then((user) => {
+      this.setState({user: user});
+    })
+    .catch((err) => {
+      console.log('WRONG SIGNIN', err);
+    })
+    .done();
   }
   render() {
     let greenLabel = 'Log in';
     let greenAction = this.logIn;
-    if (this.props.userId) {
+    if (this.state.user) {
       greenLabel = 'Add to my path';
       greenAction = this.addGoalToPath;
     }
@@ -56,7 +69,7 @@ export default class GoalsPage extends Component {
             highlightedColor='#007655'
             title={greenLabel}
             titleStyle={{color:'white'}}
-            onPress={() => { greenAction() }}
+            onPress={greenAction.bind(this)}
           />
           <Button
             style={{backgroundColor:'red'}}
